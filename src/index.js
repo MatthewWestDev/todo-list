@@ -1,49 +1,53 @@
 import "./styles.css";
 import { setData, getData, clearData } from "./storage.js";
-import { getProjects, printProjects, create } from "./project.js";
+import { getProjects, printProjects, creator, remover, hasTitle, hasNotes, hasPriority, hasDueDate, hasCheck } from "./project.js";
+import { loadData, save } from "./project-controller.js";
 
-function projectController() {
+// clearData();
+loadData();
+save();
+
+function screenController() {
+    
+    let projects = getProjects(); 
 
     let currentProject;
     let currentTodo;
     let currentCheckItem;
 
-    let projects = getProjects(); 
+    const body = document.querySelector( "body" );
 
-    let storedData = getData();
-    if ( storedData ) {
-            projects.push( storedData );
-    } else {
-        create.project( "Today", "Just a quick note about the focus for today", "due soon", 1 );
-        currentProject = projects[0];
-        create.todo( "Start with a positive attitude", currentProject );
-        create.todo( "Take breaks to keep balanced", currentProject );
-        create.todo( "Learn how to code", currentProject );
-        currentTodo = currentProject.todos[2];
-        create.checkItem( "Sign up with Odin", currentTodo )
-        create.checkItem( "Schedule time to learn", currentTodo );
-        create.checkItem( "Buy cake", currentTodo );
-        create.checkItem( "Break for cake", currentTodo );
-        currentCheckItem = currentTodo.checklist[3];
-        setData( projects );
+    const sidebar = document.createElement( "div" );
+    sidebar.classList.add( "sidebar" );
+    const projectList = document.createElement( "ul" );
+    projectList.classList.add( "project-list" );
+    
+    for ( const projectItem of projects ) {
+        console.log(projectItem);
+        const li = document.createElement( "li" );
+        li.setAttribute("data-id", `${ projectItem.id }` );
+        li.textContent = `${ projectItem.title }`;
+
+        projectList.appendChild( li );
     }
+    
+    sidebar.appendChild( projectList );
+    const main = document.createElement( "div" );
+    main.classList.add( "main" );
 
+    body.appendChild( sidebar );
+    body.appendChild( main );
 
-    // refactor projects JS for Edit factory to handle function calls
-
-    currentProject.setTitle( "Today's Projects" );
 
 
     
+        // build sidebar
+            // list project titles with click to build main
+        // build main
+            // list the project title
+            // list todos
+            // list checklists under each todo
+    // build modals for new project and new todo and new checkItem    
 
-    
-
-    
-
-
-    // write a function that gets the current project, current todo and current check item when an item is clicked or when a project is created
-    
-    return { create, getProjects: projects.getProjects  };
 }
-const projX = projectController();
-printProjects();
+screenController();

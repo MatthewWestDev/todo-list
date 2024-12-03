@@ -10,35 +10,37 @@ let currentProject;
 let currentTodo;
 let currentCheckItem;
 
-
-
-// functions to create and edit data in the objects
-
 const hasTitle = {
-    setTitle( title ) {
+    updateTitle( title ) {
         this.title = title;
         // console.log( `${ this.title } has updated` );
     }
 }
 
 const hasNotes = {
-    setNotes( note ) {
+    updateNotes( note ) {
         this.notes = note;
         // console.log( `${ this.title }'s notes are: ${ this.notes }`);
     }
 }
 
 const hasDueDate = {
-    setDueDate( date ) {
+    updateDueDate( date ) {
         this.dueDate = date;
         // console.log( `${ this.title } is due ${ this.dueDate }`);
     }
 }
 
 const hasPriority = {
-    setPriority( number ) {
+    updatePriority( number ) {
         this.priority = number;
         // console.log( `${ this.title }'s priority is ${ this.priority }`);
+    }
+}
+
+const hasCheck = {
+    updateCheck( boolean ) {
+        this.check = boolean;
     }
 }
 
@@ -47,42 +49,40 @@ const hasTodo = {
         this.check = false;
         this.todos.push( title );
         title.id = this.todos.indexOf( title );
-        // this.todo = title;
-        // currentTodo = this.todo;
-        // toDo.id = this.todos.indexOf( title );
-    }
-}
-
-const hasCheck = {
-    setCheck( boolean ) {
-        this.check = boolean;
-        // console.log( `${ this.title } is checked: ${ this.checked }`);
-    }
-}
-
-const hasTodoList = {
+        this.todo = title;
+    },
+    deleteTodo( id ) {
+        this.todos = this.todos.filter(( todo ) => todo.id !== id);
+    },
     printTodos() {
         console.log ( this.todos );
         return this.todos;
     }
-} 
+}
 
 const hasCheckItem = {
     setCheckItem( title ) {
-        // this.checkItem = title;
+        this.checkItem = title;
         this.check = false;
         this.checklist.push ( title );
         title.id = this.checklist.indexOf( title );
+    },
+    deleteCheckItem( id ) {
+        this.checklist = this.checklist.filter(( checkItem ) => checkItem.id !== id);
+    },
+    printChecklist() {
+        console.log ( this.checklist );
+        return this.checklist;
     }
 }
 
-const hasChecklist = {
-    printChecklist() {
-        console.log ( this.checklist );
+const remover = ( function () {
+    const project = ( id ) => {
+        projectsArray.splice( id, 1 );
     }
-} 
 
-
+    return { project };
+})();
 
 // The classes
 
@@ -97,13 +97,14 @@ class Project {
     }
 }
 
+
+
 Object.assign( Project.prototype, hasTitle );
 Object.assign( Project.prototype, hasNotes );
 Object.assign( Project.prototype, hasDueDate );
 Object.assign( Project.prototype, hasPriority );
 Object.assign( Project.prototype, hasTodo );
-Object.assign( Project.prototype, hasTodoList );
-// Object.assign( Project.prototype, hasCheck );
+Object.assign( Project.prototype, remover );
 
 class Todo {
     constructor( title ) {
@@ -118,7 +119,6 @@ Object.assign( Todo.prototype, hasDueDate );
 Object.assign( Todo.prototype, hasPriority );
 Object.assign( Todo.prototype, hasCheck );
 Object.assign( Todo.prototype, hasCheckItem );
-Object.assign( Todo.prototype, hasChecklist );
 
 class CheckItem {
     constructor( text ) {
@@ -135,13 +135,13 @@ Object.assign( CheckItem.prototype, hasCheck );
 
 // Object factory
 
-const create = ( function () {
-    const project = ( title, notes, dueDate, priority ) => {
+const creator = ( function () {
+    const project = ( title, notes, dueDate, priority, check ) => {
         const newProject = new Project( title, notes, dueDate, priority );
         projectsArray.push( newProject );
     }
     
-    const todo = ( title, currentProject ) => {
+    const todo = ( title, currentProject, notes, dueDate, priority, check ) => {
         const newTodo = new Todo( title );
         currentProject.setTodo( newTodo );
         let currentTodo = newTodo;
@@ -151,12 +151,10 @@ const create = ( function () {
         const newCheckItem = new CheckItem( title );
         currentTodo.setCheckItem( newCheckItem );
         let currentCheckItem = newCheckItem;
-        // console.log(` ${currentTodo.checklist.indexOf(currentCheckItem)} ${currentCheckItem.title} `);
     }
 
     return { project, todo, checkItem };
 })();
 
 
-
-export { getProjects, printProjects, create };
+export { getProjects, printProjects, creator, remover, hasTitle, hasNotes, hasPriority, hasDueDate, hasCheck };

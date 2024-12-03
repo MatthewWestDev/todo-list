@@ -34,8 +34,8 @@ export function getData() {
     if( storedData ) {
         const userData = JSON.parse( storedData );
         console.log( "Existing data found.", userData );
-        let projects = userData;
-        return projects;
+        // let projects = userData;
+        return userData;
     } 
     
     /* else {
