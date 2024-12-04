@@ -80,11 +80,15 @@ const remover = ( function () {
     const project = ( id ) => {
         projectsArray.splice( id, 1 );
     }
-
-    return { project };
+    const todo = ( id, currentProject ) => {
+        projectsArray.currentProject.todos.splice( id, 1 );
+    }
+    const checkItem = ( id, currentCheckItem ) => {
+        projectsArray.currentTodo.checklist.splice( id, 1 );
+    }
+    return { project, todo, checkItem };
 })();
 
-// The classes
 
 class Project {    
     constructor( title, notes, dueDate, priority  ) {
@@ -136,19 +140,19 @@ Object.assign( CheckItem.prototype, hasCheck );
 // Object factory
 
 const creator = ( function () {
-    const project = ( title, notes, dueDate, priority, check ) => {
+    const project = ( title, notes, dueDate, priority ) => {
         const newProject = new Project( title, notes, dueDate, priority );
         projectsArray.push( newProject );
     }
     
-    const todo = ( title, currentProject, notes, dueDate, priority, check ) => {
-        const newTodo = new Todo( title );
+    const todo = ( title, currentProject, dueDate, priority, check ) => {
+        const newTodo = new Todo( title, dueDate, priority, check );
         currentProject.setTodo( newTodo );
         let currentTodo = newTodo;
     }
     
-    const checkItem = ( title, currentTodo ) => {
-        const newCheckItem = new CheckItem( title );
+    const checkItem = ( title, currentTodo, dueDate, priority, check ) => {
+        const newCheckItem = new CheckItem( title, dueDate, priority, check );
         currentTodo.setCheckItem( newCheckItem );
         let currentCheckItem = newCheckItem;
     }
