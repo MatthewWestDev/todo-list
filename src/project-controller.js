@@ -2,7 +2,6 @@ import { setData, getData } from "./storage.js";
 import { getProjects, creator } from "./project.js";
 
 let projects = getProjects(); 
-
 let currentProject;
 let currentTodo;
 let currentCheckItem;

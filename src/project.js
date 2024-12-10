@@ -6,10 +6,6 @@ const printProjects = () => {
     console.log( projectsArray );
 }
 
-let currentProject;
-let currentTodo;
-let currentCheckItem;
-
 const hasTitle = {
     updateTitle( title ) {
         this.title = title;
@@ -143,18 +139,19 @@ const creator = ( function () {
     const project = ( title, notes, dueDate, priority ) => {
         const newProject = new Project( title, notes, dueDate, priority );
         projectsArray.push( newProject );
+        console.log( "pushed project" );
     }
     
     const todo = ( title, currentProject, dueDate, priority, check ) => {
         const newTodo = new Todo( title, dueDate, priority, check );
         currentProject.setTodo( newTodo );
-        let currentTodo = newTodo;
+        console.log( "pushed todo" );
     }
     
     const checkItem = ( title, currentTodo, dueDate, priority, check ) => {
         const newCheckItem = new CheckItem( title, dueDate, priority, check );
         currentTodo.setCheckItem( newCheckItem );
-        let currentCheckItem = newCheckItem;
+        console.log( "pushed check item" );
     }
 
     return { project, todo, checkItem };
