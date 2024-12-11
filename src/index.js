@@ -11,3 +11,4 @@ loadSidebar();
 let projects = getProjects();
 loadMain( projects[0] );
 // loadMain();
+printProjects();

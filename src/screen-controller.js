@@ -10,6 +10,7 @@ const getCurrentProject = () => currentProject;
 function setCurrentProject( title ) {
     currentProject = projects.find(( project ) => project.title === title );
     console.log( "set current project" );
+    loadMain( currentProject );
   }
 
 let currentTodo;
@@ -41,6 +42,9 @@ const addProjectBtn = document.createElement( "button" );
 addProjectBtn.classList.add( "add-project-btn" );
 addProjectBtn.innerHTML = `&plus; Add New Project`;
 sidebar.appendChild( addProjectBtn );
+addProjectBtn.addEventListener( "click", () => {
+    loadModal( "create", "project" );
+});
 const main = document.createElement( "div" );
 main.classList.add( "main" );
 
@@ -51,8 +55,12 @@ const loadSidebar = () => {
     projectList.textContent = "";
     for ( const projectItem of projects ) {
         const li = document.createElement( "li" );
+        li.classList.add( "project-item" );
         li.setAttribute("data-id", `${ projectItem.id }` );
         li.textContent = `${ projectItem.title }`;
+        li.addEventListener( "click", () => {
+            setCurrentProject( projectItem.title );
+        });
 
         projectList.appendChild( li );
     }
@@ -101,6 +109,9 @@ const loadMain = ( project ) => {
     projectEditBtn.setAttribute("data-id", `${ project.id }` );
     projectEditBtn.textContent = "Edit Project";
     projectEditLi.appendChild( projectEditBtn );
+    projectEditBtn.addEventListener( "click", () => {
+        loadModal( "edit", "project", `${ project.id }` );
+    });
 
     const projectDeleteLi = document.createElement( "li" );
     projectDeleteLi.classList.add( "project-delete-li" );
@@ -275,11 +286,34 @@ const loadMain = ( project ) => {
 
 }
 
-const loadModal = ( action, type ) => {
+
+
+
+
+
+
+
+
+
+const loadModal = ( action, type, projectId, todoId, checkItemId ) => {
 
     const modal = document.createElement( "dialog" );
     modal.id = "modal";
     main.appendChild( modal );
+
+    let project;
+    let todo;
+    let checkItem;
+
+    if ( action == "edit" && type == "project" ) {
+        project = projects[ projectId ];
+    }
+    if ( action == "edit" && type == "todo" ) {
+        todo = project.todos[ todoId ];
+    }
+    if ( action == "edit" && type == "checkItem" ) {
+        checkItem = project.todo.checkList[ checkItemId ];
+    }
 
     
     const modalContent = document.createElement( "div" );
@@ -288,6 +322,7 @@ const loadModal = ( action, type ) => {
     
     const closeModalBtn = document.createElement( "button" );
     closeModalBtn.classList.add( "close-modal-btn" );
+    closeModalBtn.textContent = "Close";
     modalContent.appendChild( closeModalBtn );
     
     const titleForm = document.createElement( "form" );
@@ -304,17 +339,78 @@ const loadModal = ( action, type ) => {
         legend.textContent = "Edit Project";
     }
     fieldset.appendChild( legend );
+    
     const pTitle = document.createElement( "p" );
     fieldset.appendChild( pTitle );
     const labelTitle = document.createElement( "label" );
-    labelTitle.htmlFor = "title";
+    labelTitle.htmlFor = "title_input";
     pTitle.appendChild( labelTitle );
     const titleInput = document.createElement( "input" );
     titleInput.id = "title_input";
     titleInput.type = "text";
     titleInput.name = "title_input";
     titleInput.required = true;
+    if ( action == "edit" && type == "project" ) {
+        titleInput.value = `${ project.title }`;
+    }
     pTitle.appendChild( titleInput );
+
+    const pNote = document.createElement( "p" );
+    fieldset.appendChild( pNote );
+    const labelNote = document.createElement( "label" );
+    labelNote.htmlFor = "note_input";
+    pNote.appendChild( labelNote );
+    const noteInput = document.createElement( "textarea" );
+    noteInput.id = "note_input";
+    // noteInput.type = "text";
+    noteInput.name = "note_input";
+    // noteInput.required = true;
+    if ( action == "edit" && type == "project" ) {
+        noteInput.value = `${ project.notes }`;
+    }
+    pNote.appendChild( noteInput );
+
+    const pDueDate = document.createElement( "p" );
+    fieldset.appendChild( pDueDate );
+    const labelDueDate = document.createElement( "label" );
+    labelDueDate.htmlFor = "due_date_input";
+    pDueDate.appendChild( labelDueDate );
+    const dueDateInput = document.createElement( "input" );
+    dueDateInput.id = "due_date_input";
+    dueDateInput.type = "date";
+    dueDateInput.name = "due_date_input";
+    dueDateInput.value = "";
+    // dueDateInput.required = true;
+    if ( action == "edit" && type == "project" ) {
+        dueDateInput.value = `${ project.dueDate }`;
+    }
+    pDueDate.appendChild( dueDateInput );
+
+    const pPriority = document.createElement( "p" );
+    fieldset.appendChild( pPriority );
+    const labelPriority = document.createElement( "label" );
+    labelPriority.htmlFor = "priority_input";
+    pPriority.appendChild( labelPriority );
+    const priorityInput = document.createElement( "select" );
+    priorityInput.id = "priority_input";
+    // priorityInput.type = "select";
+    priorityInput.name = "priority_input";
+    // priorityInput.required = true;
+    if ( action == "edit" && type == "project" ) {
+        priorityInput.value = `${ project.priority }`;
+    }
+    pPriority.appendChild( priorityInput );
+    // const defaultOption = document.createElement( "option" );
+    // defaultOption.value = "";
+
+
+    const priorityArray = [ "", "Low", "Medium", "High" ];
+    for ( let i = 0; i < priorityArray.length; i++ ) {
+        const option = document.createElement( "option" );
+        option.value = priorityArray[ i ];
+        option.textContent = priorityArray[ i ];
+        priorityInput.appendChild( option );
+    }
     
     const pSubmit = document.createElement( "p" );
     titleForm.appendChild( pSubmit );
@@ -328,7 +424,12 @@ const loadModal = ( action, type ) => {
 
     modalSubmitBtn.addEventListener( "click", (e) => {
         e.preventDefault();
+
         const titleString = titleInput.value;
+        const noteString = noteInput.value;
+        const dueDateString = dueDateInput.value;
+        const priorityString = priorityInput.value;
+
         if ( action == "create" && type == "project" ) {
             creator.project( titleString );
             save();
@@ -336,24 +437,18 @@ const loadModal = ( action, type ) => {
             setCurrentProject( titleString );
             console.log( currentProject );
             loadMain( getCurrentProject() );
-    
-    
+        } else if ( action == "edit" && type == "project" ) {
+            project.updateTitle( titleString );
+            project.updateNotes( noteString );
+            project.updateDueDate( dueDateString );
+            project.updatePriority( priorityString );
+            save();
+            loadSidebar();
+            setCurrentProject( titleString );
+            loadMain( getCurrentProject() );
         }
     
     })
-
-    // set it as current project
 }
-
-
-
-addProjectBtn.addEventListener( "click", () => {
-    loadModal( "create", "project" );
-})
-
-// click function for Edit Project button
-
-// build modals for todo and new checkItem    
-
 
 export { loadSidebar, loadMain, loadModal };

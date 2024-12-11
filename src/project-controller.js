@@ -27,7 +27,7 @@ function loadData() {
         
     } else {
         console.log("creating default project");
-        creator.project( "Today", "Just a quick note about the focus for today", "due soon", 1 );
+        creator.project( "Today", "Just a quick note about the focus for today" );
         currentProject = projects[0];
         creator.todo( "Start with a positive attitude", currentProject );
         creator.todo( "Take breaks to keep balanced", currentProject );
