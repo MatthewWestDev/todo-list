@@ -4,7 +4,7 @@ import { getProjects, printProjects, getCurrentProject, setCurrentProject, getCu
 import { loadData, save } from "./project-controller.js";
 import { loadSidebar, loadMain } from "./screen-controller.js"
 
-clearData();
+// clearData();
 loadData();
 save();
 loadSidebar();

@@ -29,8 +29,9 @@ const setCurrentTodo = ( projectId, todoId ) => {
 
 let currentCheckItem;
 const getCurrentCheckItem = () => currentCheckItem;
-const setCurrentCheckItem = ( id ) => {
-    currentCheckItem = currentProject.currentTodo.checklist[ id ];
+const setCurrentCheckItem = ( projectId, todoId, checkItemId ) => {
+    currentCheckItem = projects[ projectId ].todos[ todoId ].checklist[ checkItemId ];
+    console.log( currentCheckItem );
 }
 
 
@@ -199,6 +200,9 @@ const loadMain = ( project ) => {
             todoEditBtn.setAttribute("data-id", `${ todo.id }` );
             todoEditBtn.textContent = "Edit Todo";
             todoEditLi.appendChild( todoEditBtn );
+            todoEditBtn.addEventListener( "click", () => {
+                loadModal( "edit", "todo", `${ project.id }`, `${ todo.id }` );
+            });
 
             const todoDeleteLi = document.createElement( "li" );
             todoDeleteLi.classList.add( "todo-delete-li" );
@@ -232,6 +236,9 @@ const loadMain = ( project ) => {
                     checkItemLi.setAttribute("data-id", `${ checkItem.id }` );
                     checkItemLi.textContent = `${ checkItem.title }`;
                     todoChecklist.appendChild( checkItemLi );
+                    checkItemLi.addEventListener( "click", () => {
+                        setCurrentCheckItem( project.id, todo.id, checkItem.id );
+                    });
 
                     const checkItemDetails = document.createElement( "ul" );
                     checkItemDetails.classList.add( "checkitem-details-ul" );
@@ -265,6 +272,9 @@ const loadMain = ( project ) => {
                     checkItemEditBtn.setAttribute("data-id", `${ checkItem.id }` );
                     checkItemEditBtn.textContent = "Edit Item";
                     checkItemEditLi.appendChild( checkItemEditBtn );
+                    checkItemEditBtn.addEventListener( "click", () => {
+                        loadModal( "edit", "checkItem", `${ project.id }`, `${ todo.id }`, `${ checkItem.id }` );
+                    });
 
                     const checkItemDeleteLi = document.createElement( "li" );
                     checkItemDeleteLi.classList.add( "checkitem-delete-li" );
@@ -313,7 +323,7 @@ const loadMain = ( project ) => {
     addTodoBtn.innerHTML = `&plus; Add New Todo`;
     main.appendChild( addTodoBtn );
     addTodoBtn.addEventListener( "click", () => {
-        loadModal( "create", "todo" );
+        loadModal( "create", "todo", project.id );
     });
 
 
@@ -342,10 +352,13 @@ const loadModal = ( action, type, projectId, todoId, checkItemId ) => {
         project = projects[ projectId ];
     }
     if ( action == "edit" && type == "todo" ) {
+        project = projects[ projectId ];
         todo = project.todos[ todoId ];
     }
     if ( action == "edit" && type == "checkItem" ) {
-        checkItem = project.todo.checkList[ checkItemId ];
+        // project = projects[ projectId ];
+        // todo = project.todos[ todoId ];
+        checkItem = projects[ projectId ].todos[ todoId ].checklist[ checkItemId ];
     }
 
     
@@ -370,6 +383,14 @@ const loadModal = ( action, type, projectId, todoId, checkItemId ) => {
         legend.textContent = "Create a New Project";
     } else if ( action == "edit" && type == "project" ) {
         legend.textContent = "Edit Project";
+    } else if ( action == "create" && type == "todo" ) {
+        legend.textContent = "Create a New Todo";
+    } else if ( action == "edit" && type == "todo" ) {
+        legend.textContent = "Edit Todo";
+    } else if ( action == "create" && type == "checkItem" ) {
+        legend.textContent = "Create a New Check Item";
+    } else if ( action == "edit" && type == "checkItem" ) {
+        legend.textContent = "Edit Check Item";
     }
     fieldset.appendChild( legend );
     
@@ -387,6 +408,13 @@ const loadModal = ( action, type, projectId, todoId, checkItemId ) => {
     if ( action == "edit" && type == "project" ) {
         titleInput.value = `${ project.title }`;
     }
+    if ( action == "edit" && type == "todo" ) {
+        titleInput.value = `${ todo.title }`;
+    }
+    if ( action == "edit" && type == "checkItem" ) {
+        titleInput.value = `${ checkItem.title }`;
+    }
+    
     pTitle.appendChild( titleInput );
 
     const pNote = document.createElement( "p" );
@@ -394,7 +422,6 @@ const loadModal = ( action, type, projectId, todoId, checkItemId ) => {
     const labelNote = document.createElement( "label" );
     labelNote.htmlFor = "note_input";
     labelNote.textContent = "Notes";
-    pNote.appendChild( labelNote );
     const noteInput = document.createElement( "textarea" );
     noteInput.id = "note_input";
     // noteInput.type = "text";
@@ -403,7 +430,10 @@ const loadModal = ( action, type, projectId, todoId, checkItemId ) => {
     if ( action == "edit" && type == "project" ) {
         noteInput.value = `${ project.notes }`;
     }
-    pNote.appendChild( noteInput );
+    if ( type == "project" ) {
+        pNote.appendChild( labelNote );
+        pNote.appendChild( noteInput );
+    }
 
     const pDueDate = document.createElement( "p" );
     fieldset.appendChild( pDueDate );
@@ -419,6 +449,12 @@ const loadModal = ( action, type, projectId, todoId, checkItemId ) => {
     // dueDateInput.required = true;
     if ( action == "edit" && type == "project" ) {
         dueDateInput.value = `${ project.dueDate }`;
+    }
+    if ( action == "edit" && type == "todo" ) {
+        dueDateInput.value = `${ todo.dueDate }`;
+    }
+    if ( action == "edit" && type == "checkItem" ) {
+        dueDateInput.value = `${ checkItem.dueDate }`;
     }
     pDueDate.appendChild( dueDateInput );
 
@@ -445,6 +481,12 @@ const loadModal = ( action, type, projectId, todoId, checkItemId ) => {
     }
     if ( action == "edit" && type == "project" ) {
         priorityInput.value = `${ project.priority }`;
+    }
+    if ( action == "edit" && type == "todo" ) {
+        priorityInput.value = `${ todo.priority }`;
+    }
+    if ( action == "edit" && type == "checkItem" ) {
+        priorityInput.value = `${ checkItem.priority }`;
     }
     
     const pSubmit = document.createElement( "p" );
@@ -482,6 +524,46 @@ const loadModal = ( action, type, projectId, todoId, checkItemId ) => {
             save();
             loadSidebar();
             setCurrentProject( project.id );
+            // console.log( getCurrentProject() );
+            loadMain( getCurrentProject() );
+        } else if ( action == "create" && type == "todo" ) {
+            creator.todo( titleString, currentProject, dueDateString, priorityString );
+            save();
+            // const createdId = currentProject.todos.length -1;
+            // console.log( createdId );
+            // loadSidebar();
+            // setCurrentTodo( project.id, createdId );
+            // console.log( currentProject );
+            loadMain( getCurrentProject() );
+        } else if ( action == "edit" && type == "todo" ) {
+            todo.updateTitle( titleString );
+            todo.updateDueDate( dueDateString );
+            todo.updatePriority( priorityString );
+            save();
+            loadSidebar();
+            loadMain( getCurrentProject() );
+            // setCurrentTodo( project.id, createdId );
+
+            // console.log( getCurrentProject() );
+            // loadMain( getCurrentProject() );
+        } else if ( action == "create" && type == "checkItem" ) {
+            creator.checkItem( titleString, currentTodo, dueDateString, priorityString );
+            save();
+            // const createdId = currentProject.todos.length -1;
+            // console.log( createdId );
+            // loadSidebar();
+            // setCurrentTodo( project.id, createdId );
+            // console.log( currentProject );
+            loadMain( getCurrentProject() );
+        } else if ( action == "edit" && type == "checkItem" ) {
+            checkItem.updateTitle( titleString );
+            checkItem.updateDueDate( dueDateString );
+            checkItem.updatePriority( priorityString );
+            save();
+            loadSidebar();
+            loadMain( getCurrentProject() );
+            // setCurrentTodo( project.id, createdId );
+
             // console.log( getCurrentProject() );
             // loadMain( getCurrentProject() );
         }
