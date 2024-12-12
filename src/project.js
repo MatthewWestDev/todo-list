@@ -85,7 +85,6 @@ const remover = ( function () {
     return { project, todo, checkItem };
 })();
 
-
 class Project {    
     constructor( title, notes, dueDate, priority  ) {
         this.title = title;
@@ -96,8 +95,6 @@ class Project {
         this.todos = [];
     }
 }
-
-
 
 Object.assign( Project.prototype, hasTitle );
 Object.assign( Project.prototype, hasNotes );
@@ -132,9 +129,6 @@ Object.assign( CheckItem.prototype, hasDueDate );
 Object.assign( CheckItem.prototype, hasPriority );
 Object.assign( CheckItem.prototype, hasCheck );
 
-
-// Object factory
-
 const creator = ( function () {
     const project = ( title, notes, dueDate, priority ) => {
         const newProject = new Project( title, notes, dueDate, priority );
@@ -156,6 +150,5 @@ const creator = ( function () {
 
     return { project, todo, checkItem };
 })();
-
 
 export { getProjects, printProjects, creator, remover, hasTitle, hasNotes, hasPriority, hasDueDate, hasCheck };

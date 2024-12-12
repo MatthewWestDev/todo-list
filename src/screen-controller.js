@@ -7,18 +7,24 @@ let projects = getProjects();
 
 let currentProject = projects[0];
 const getCurrentProject = () => currentProject;
-function setCurrentProject( title ) {
-    currentProject = projects.find(( project ) => project.title === title );
+function setCurrentProject( id ) {
+    if ( id == undefined ) {
+        currentProject = projects[ 0 ];
+        console.log( "resetting currentProject to zero" );
+        return;
+    }
+    currentProject = projects.find(( project ) => project.id === id );
     console.log( "set current project" );
     loadMain( currentProject );
   }
 
 let currentTodo;
 const getCurrentTodo = () => currentTodo;
-const setCurrentTodo = ( id ) => {
-    currentProject = getCurrentProject();
-    console.log( currentProject );
-    currentTodo = currentProject.todos[ id ];
+const setCurrentTodo = ( projectId, todoId ) => {
+    // currentProject = getCurrentProject();
+    // console.log( currentProject );
+    currentTodo = projects[ projectId ].todos[ todoId ];
+    console.log( currentTodo );
 }
 
 let currentCheckItem;
@@ -59,7 +65,7 @@ const loadSidebar = () => {
         li.setAttribute("data-id", `${ projectItem.id }` );
         li.textContent = `${ projectItem.title }`;
         li.addEventListener( "click", () => {
-            setCurrentProject( projectItem.title );
+            setCurrentProject( projectItem.id );
         });
 
         projectList.appendChild( li );
@@ -68,6 +74,14 @@ const loadSidebar = () => {
 
 const loadMain = ( project ) => {
     main.textContent = "";
+
+    if ( project == undefined ) {
+        const undefinedMainNotice = document.createElement( "h3" );
+        undefinedMainNotice.textContent = "Please select or create a project...";
+        main.appendChild( undefinedMainNotice );
+        return;
+    }
+    
     const h1 = document.createElement( "h1" );
     h1.textContent = `${ project.title }`;
     main.appendChild( h1 );
@@ -121,8 +135,14 @@ const loadMain = ( project ) => {
     projectDeleteBtn.setAttribute("data-id", `${ project.id }` );
     projectDeleteBtn.textContent = "Delete Project";
     projectDeleteLi.appendChild( projectDeleteBtn );
+    projectDeleteBtn.addEventListener( "click", () => {
+        remover.project( `${ project.id }` );
+        save();
+        loadSidebar();
+        loadMain( setCurrentProject() );
+    })
 
-    if ( project.todos ) {
+    if ( project.todos.length !== 0 ) {
         const projectTodos = document.createElement( "ul" );
         projectTodos.classList.add( "project-todos-ul" );
         main.appendChild( projectTodos );
@@ -131,6 +151,9 @@ const loadMain = ( project ) => {
             todoLi.setAttribute("data-id", `${ todo.id }` );
             todoLi.textContent = `${ todo.title }`;
             projectTodos.appendChild( todoLi );
+            todoLi.addEventListener( "click", () => {
+                setCurrentTodo( project.id, todo.id );
+            });
 
             const todoDetails = document.createElement( "ul" );
             todoDetails.classList.add( "todo-details-ul" );
@@ -164,6 +187,9 @@ const loadMain = ( project ) => {
             todoAddChecklistBtn.setAttribute("data-id", `${ todo.id }` );
             todoAddChecklistBtn.textContent = "Add Checklist";
             todoAddChecklistLi.appendChild( todoAddChecklistBtn );
+            todoAddChecklistBtn.addEventListener( "click", () => {
+                loadModal( "create", "checkItem" );
+            });
 
             const todoEditLi = document.createElement( "li" );
             todoEditLi.classList.add( "todo-edit-li" );
@@ -268,6 +294,9 @@ const loadMain = ( project ) => {
                 addCheckItemBtn.classList.add( "add-checkitem-btn" );
                 addCheckItemBtn.innerHTML = `&plus; Add New Item`;
                 todoChecklist.appendChild( addCheckItemBtn );
+                addCheckItemBtn.addEventListener( "click", () => {
+                    loadModal( "create", "checkItem" );
+                });
             } else {
                 // do nothing?
             }
@@ -278,10 +307,14 @@ const loadMain = ( project ) => {
         noTodos.textContent = "Add your first Todo...";
         main.appendChild( noTodos );
     }
-        const addTodoBtn = document.createElement( "button" );
-        addTodoBtn.classList.add( "add-todo-btn" );
-        addTodoBtn.innerHTML = `&plus; Add New Todo`;
-        main.appendChild( addTodoBtn );
+
+    const addTodoBtn = document.createElement( "button" );
+    addTodoBtn.classList.add( "add-todo-btn" );
+    addTodoBtn.innerHTML = `&plus; Add New Todo`;
+    main.appendChild( addTodoBtn );
+    addTodoBtn.addEventListener( "click", () => {
+        loadModal( "create", "todo" );
+    });
 
 
 }
@@ -322,7 +355,7 @@ const loadModal = ( action, type, projectId, todoId, checkItemId ) => {
     
     const closeModalBtn = document.createElement( "button" );
     closeModalBtn.classList.add( "close-modal-btn" );
-    closeModalBtn.textContent = "Close";
+    closeModalBtn.textContent = "X Close";
     modalContent.appendChild( closeModalBtn );
     
     const titleForm = document.createElement( "form" );
@@ -344,6 +377,7 @@ const loadModal = ( action, type, projectId, todoId, checkItemId ) => {
     fieldset.appendChild( pTitle );
     const labelTitle = document.createElement( "label" );
     labelTitle.htmlFor = "title_input";
+    labelTitle.textContent = "Title";
     pTitle.appendChild( labelTitle );
     const titleInput = document.createElement( "input" );
     titleInput.id = "title_input";
@@ -359,6 +393,7 @@ const loadModal = ( action, type, projectId, todoId, checkItemId ) => {
     fieldset.appendChild( pNote );
     const labelNote = document.createElement( "label" );
     labelNote.htmlFor = "note_input";
+    labelNote.textContent = "Notes";
     pNote.appendChild( labelNote );
     const noteInput = document.createElement( "textarea" );
     noteInput.id = "note_input";
@@ -374,6 +409,7 @@ const loadModal = ( action, type, projectId, todoId, checkItemId ) => {
     fieldset.appendChild( pDueDate );
     const labelDueDate = document.createElement( "label" );
     labelDueDate.htmlFor = "due_date_input";
+    labelDueDate.textContent = "Due Date";
     pDueDate.appendChild( labelDueDate );
     const dueDateInput = document.createElement( "input" );
     dueDateInput.id = "due_date_input";
@@ -390,18 +426,14 @@ const loadModal = ( action, type, projectId, todoId, checkItemId ) => {
     fieldset.appendChild( pPriority );
     const labelPriority = document.createElement( "label" );
     labelPriority.htmlFor = "priority_input";
+    labelPriority.textContent = "Priority";
     pPriority.appendChild( labelPriority );
     const priorityInput = document.createElement( "select" );
     priorityInput.id = "priority_input";
     // priorityInput.type = "select";
     priorityInput.name = "priority_input";
     // priorityInput.required = true;
-    if ( action == "edit" && type == "project" ) {
-        priorityInput.value = `${ project.priority }`;
-    }
     pPriority.appendChild( priorityInput );
-    // const defaultOption = document.createElement( "option" );
-    // defaultOption.value = "";
 
 
     const priorityArray = [ "", "Low", "Medium", "High" ];
@@ -410,6 +442,9 @@ const loadModal = ( action, type, projectId, todoId, checkItemId ) => {
         option.value = priorityArray[ i ];
         option.textContent = priorityArray[ i ];
         priorityInput.appendChild( option );
+    }
+    if ( action == "edit" && type == "project" ) {
+        priorityInput.value = `${ project.priority }`;
     }
     
     const pSubmit = document.createElement( "p" );
@@ -431,12 +466,14 @@ const loadModal = ( action, type, projectId, todoId, checkItemId ) => {
         const priorityString = priorityInput.value;
 
         if ( action == "create" && type == "project" ) {
-            creator.project( titleString );
+            creator.project( titleString, noteString, dueDateString, priorityString );
             save();
+            const createdId = projects.length -1;
+            console.log( createdId );
             loadSidebar();
-            setCurrentProject( titleString );
-            console.log( currentProject );
-            loadMain( getCurrentProject() );
+            setCurrentProject( createdId );
+            // console.log( currentProject );
+            // loadMain( projects[ createdId ] );
         } else if ( action == "edit" && type == "project" ) {
             project.updateTitle( titleString );
             project.updateNotes( noteString );
@@ -444,8 +481,9 @@ const loadModal = ( action, type, projectId, todoId, checkItemId ) => {
             project.updatePriority( priorityString );
             save();
             loadSidebar();
-            setCurrentProject( titleString );
-            loadMain( getCurrentProject() );
+            setCurrentProject( project.id );
+            // console.log( getCurrentProject() );
+            // loadMain( getCurrentProject() );
         }
     
     })

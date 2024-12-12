@@ -1,5 +1,5 @@
 import { setData, getData } from "./storage.js";
-import { getProjects, creator } from "./project.js";
+import { getProjects, creator, printProjects } from "./project.js";
 
 let projects = getProjects(); 
 let currentProject;
@@ -44,6 +44,7 @@ function loadData() {
 
 const save = () => {
     setData( projects );
+    printProjects();
 }
 
 
