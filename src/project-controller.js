@@ -11,21 +11,28 @@ function loadData() {
     let storedData = getData();
     console.log( storedData );
     if ( storedData && storedData.length !== 0 ) {
+        let projectIndex = 0;
         for ( let projectKey in storedData ) {
+
             const rawProject = storedData[projectKey];
             const newProject = creator.project( rawProject.title, rawProject.notes, rawProject.dueDate, rawProject.priority, rawProject.check );
-            currentProject = projects[ rawProject.id ];
+            currentProject = projects[ projectIndex ];
+            let todoIndex = 0;
             for ( let todoKey in rawProject.todos) {
                 const rawTodo = rawProject.todos[todoKey];
                 const newTodo = creator.todo( rawTodo.title, currentProject, rawTodo.dueDate, rawTodo.priority, rawTodo.check );
-                currentTodo = currentProject.todos[ rawTodo.id ];
+                currentTodo = currentProject.todos[ todoIndex ];
                 for ( let checkItemKey in rawTodo.checklist) {
                     const rawCheckItem = rawTodo.checklist[checkItemKey];
                     const newCheckItem = creator.checkItem( rawCheckItem.title, currentTodo, rawCheckItem.dueDate, rawCheckItem.priority, rawCheckItem.check );
+                    
                 }
+                todoIndex++;
             }
+            projectIndex++;
+
         } 
-        
+
     } else {
         console.log("creating default project");
         creator.project( "Today", "Just a quick note about the focus for today" );
