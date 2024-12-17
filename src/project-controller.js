@@ -9,6 +9,7 @@ let currentCheckItem;
 function loadData() {
 
     let storedData = getData();
+    console.log( storedData );
     if ( storedData && storedData.length !== 0 ) {
         for ( let projectKey in storedData ) {
             const rawProject = storedData[projectKey];
@@ -16,11 +17,11 @@ function loadData() {
             currentProject = projects[ rawProject.id ];
             for ( let todoKey in rawProject.todos) {
                 const rawTodo = rawProject.todos[todoKey];
-                const newTodo = creator.todo( rawTodo.title, currentProject, rawTodo.notes, rawTodo.dueDate, rawTodo.priority, rawTodo.check );
+                const newTodo = creator.todo( rawTodo.title, currentProject, rawTodo.dueDate, rawTodo.priority, rawTodo.check );
                 currentTodo = currentProject.todos[ rawTodo.id ];
                 for ( let checkItemKey in rawTodo.checklist) {
                     const rawCheckItem = rawTodo.checklist[checkItemKey];
-                    const newCheckItem = creator.checkItem( rawCheckItem.title, currentTodo, rawCheckItem.notes, rawCheckItem.dueDate, rawCheckItem.priority, rawCheckItem.check );
+                    const newCheckItem = creator.checkItem( rawCheckItem.title, currentTodo, rawCheckItem.dueDate, rawCheckItem.priority, rawCheckItem.check );
                 }
             }
         } 

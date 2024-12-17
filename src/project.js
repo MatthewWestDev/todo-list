@@ -35,17 +35,14 @@ const hasPriority = {
 }
 
 const hasCheck = {
-    updateCheck( boolean ) {
-        this.check = boolean;
+    updateCheck() {
+        this.check = !this.check;
     }
 }
 
 const hasTodo = {
     setTodo( title ) {
-        this.check = false;
         this.todos.push( title );
-        title.id = this.todos.indexOf( title );
-        this.todo = title;
     },
     deleteTodo( id ) {
         this.todos = this.todos.filter(( todo ) => todo.id !== id);
@@ -59,9 +56,7 @@ const hasTodo = {
 const hasCheckItem = {
     setCheckItem( title ) {
         this.checkItem = title;
-        this.check = false;
         this.checklist.push ( title );
-        title.id = this.checklist.indexOf( title );
     },
     deleteCheckItem( id ) {
         this.checklist = this.checklist.filter(( checkItem ) => checkItem.id !== id);
@@ -73,14 +68,16 @@ const hasCheckItem = {
 }
 
 const remover = ( function () {
-    const project = ( id ) => {
-        projectsArray.splice( id, 1 );
+    const project = ( projectId ) => {
+        projectsArray.splice( projectId, 1 );
     }
-    const todo = ( id, currentProject ) => {
-        projectsArray.currentProject.todos.splice( id, 1 );
+    const todo = ( projectId, todoId ) => {
+        projectsArray[ projectId ].todos.splice( todoId, 1 );
+        console.log( "removing todo");
+        printProjects();
     }
-    const checkItem = ( id, currentCheckItem ) => {
-        projectsArray.currentTodo.checklist.splice( id, 1 );
+    const checkItem = ( projectId, todoId, checkItemId ) => {
+        projectsArray[ projectId ].todos[ todoId ].checklist.splice( checkItemId, 1 );
     }
     return { project, todo, checkItem };
 })();
@@ -88,7 +85,6 @@ const remover = ( function () {
 class Project {    
     constructor( title, notes, dueDate, priority  ) {
         this.title = title;
-        this.id = projectsArray.length;
         this.notes = notes;
         this.dueDate = dueDate,
         this.priority = priority;
@@ -104,9 +100,11 @@ Object.assign( Project.prototype, hasTodo );
 Object.assign( Project.prototype, remover );
 
 class Todo {
-    constructor( title ) {
+    constructor( title, dueDate, priority, check ) {
         this.title = title;
-        this.check = false;
+        this.dueDate = dueDate,
+        this.priority = priority;
+        this.check = check;
         this.checklist = [];
     }
 }
@@ -118,9 +116,11 @@ Object.assign( Todo.prototype, hasCheck );
 Object.assign( Todo.prototype, hasCheckItem );
 
 class CheckItem {
-    constructor( text ) {
-        this.title = text;
-        this.check = false;
+    constructor( title, dueDate, priority, check ) {
+        this.title = title;
+        this.dueDate = dueDate,
+        this.priority = priority;
+        this.check = check;
     }
 }
 
