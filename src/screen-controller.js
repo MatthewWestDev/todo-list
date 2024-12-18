@@ -196,6 +196,8 @@ const loadMain = ( project ) => {
 
             const todoDetails = document.createElement( "ul" );
             todoDetails.classList.add( "todo-details-ul" );
+            todoDetails.classList.add( "details-ul" );
+            // todoDetails.classList.add( "visually-hidden" );
             todoLi.appendChild( todoDetails );
 
             const todoDueDateLi = document.createElement( "li" );
@@ -291,6 +293,8 @@ const loadMain = ( project ) => {
 
                     const checkItemDetails = document.createElement( "ul" );
                     checkItemDetails.classList.add( "checkitem-details-ul" );
+                    checkItemDetails.classList.add( "details-ul" );
+                    // checkItemDetails.classList.add( "visually-hidden" );
                     checkItemLi.appendChild( checkItemDetails );
                     
                     const checkItemDueDateLi = document.createElement( "li" );
@@ -356,13 +360,14 @@ const loadMain = ( project ) => {
             }
         index++;    
         }
-
     } else {
         const noTodos = document.createElement( "p" );
         noTodos.classList.add( "no-todos" );
         noTodos.textContent = "Add your first Todo...";
         main.appendChild( noTodos );
     }
+
+    hideDetails();
 
     const addTodoBtn = document.createElement( "button" );
     addTodoBtn.classList.add( "add-todo-btn" );
@@ -379,6 +384,10 @@ const loadMain = ( project ) => {
             const selectedTodoId = e.target.dataset.id;
         console.log( `Todo ProjectId ${projectId}, ${selectedTodoId}` );
         setCurrentTodo( projectId, selectedTodoId );
+        hideDetails();
+        let todoLiDetails = todoLi.getElementsByClassName( "details-ul" );
+        console.log( todoLiDetails );
+        todoLiDetails[0].classList.remove( "visually-hidden" );
         })
     }
 
@@ -403,6 +412,9 @@ const loadMain = ( project ) => {
             const parentTodo = e.target.dataset.todoid;
             console.log( `CheckItem ProjectId ${projectId}, ${parentTodo}, ${selectedCheckItemId}` );
             setCurrentCheckItem( projectId, parentTodo, selectedCheckItemId );
+            hideDetails();
+            let checkItemLiDetails = checkItemLi.getElementsByClassName( "details-ul" );
+            checkItemLiDetails[0].classList.remove( "visually-hidden" );
             e.stopPropagation();
         })
     }
@@ -456,10 +468,19 @@ const loadMain = ( project ) => {
         })
     }
 
+    function hideDetails() {
+    const listOfDetailUls = document.getElementsByClassName( "details-ul" );
+    for ( const detailUl of listOfDetailUls ) {
+        detailUl.classList.add( "visually-hidden" );
+        console.log( "hiding details..." );
+    }
+    }
+    // hideDetails();
     
 
     
 }
+
 
 
 
@@ -503,6 +524,9 @@ const loadModal = ( action, type, projectId, todoId, checkItemId ) => {
     closeModalBtn.classList.add( "close-modal-btn" );
     closeModalBtn.textContent = "X Close";
     modalContent.appendChild( closeModalBtn );
+    closeModalBtn.addEventListener( "click", () => {
+        modal.close();
+    });
     
     const titleForm = document.createElement( "form" );
     titleForm.classList.add( "title-form" );
@@ -704,5 +728,7 @@ const loadModal = ( action, type, projectId, todoId, checkItemId ) => {
     
     })
 }
+
+
 
 export { loadSidebar, loadMain, setCurrentProject };
