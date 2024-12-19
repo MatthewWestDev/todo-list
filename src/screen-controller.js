@@ -21,6 +21,7 @@ function setCurrentProject( projectId ) {
     console.log( "set current project" );
     setSelectedProjectId( projectId );
     loadMain( currentProject );
+    setCurrentProjectLi( projectId );
   }
 
   let selectedTodoId = 0;
@@ -89,6 +90,7 @@ const loadSidebar = () => {
 
         index++;
     }
+
 }
 
 const listOfProjects = Array.from( document.getElementsByClassName( "project-item" ));
@@ -96,10 +98,19 @@ const listOfProjects = Array.from( document.getElementsByClassName( "project-ite
 function clickHandlerProjects( e  ) {
     selectedProjectId = e.target.dataset.id;
     setCurrentProject( selectedProjectId );
-
 }
 projectList.addEventListener( "click", clickHandlerProjects );
 
+function setCurrentProjectLi( currentId ) {
+    const projectList = document.getElementsByClassName( "project-item" );
+    for ( const projectItem of projectList ) {
+        if ( projectItem.dataset.id == currentId ) {
+            projectItem.classList.add( "current-project-li" );
+        } else {
+            projectItem.classList.remove( "current-project-li" );
+        } 
+    }
+}
 
 
 
@@ -192,7 +203,20 @@ const loadMain = ( project ) => {
             todoLi.classList.add( "todo-item" );
             todoLi.setAttribute("data-id", index );
             todoLi.textContent = `${ todo.title }`;
+            todoLi.title = "Click to Show Details";
             projectTodos.appendChild( todoLi );
+            if ( todo.dueDate ) {
+                const dueDateSpan = document.createElement( "span" );
+                dueDateSpan.classList.add( "due-date-span" );
+                dueDateSpan.append( `${ todo.dueDate }` );
+                todoLi.append( dueDateSpan );
+            }
+            if ( todo.priority ) {
+                const prioritySpan = document.createElement( "span" );
+                prioritySpan.classList.add( "priority-span" );
+                prioritySpan.append( `${ todo.priority }` );
+                todoLi.append( prioritySpan );
+            }
 
             const todoDetails = document.createElement( "ul" );
             todoDetails.classList.add( "todo-details-ul" );
@@ -226,7 +250,7 @@ const loadMain = ( project ) => {
             const todoAddChecklistBtn = document.createElement( "button" );
             todoAddChecklistBtn.classList.add( "todo-add-checklist-btn" );
             todoAddChecklistBtn.setAttribute("data-id", index );
-            todoAddChecklistBtn.textContent = "Add Checklist Item";
+            todoAddChecklistBtn.innerHTML = `&plus; Add Checklist Item`;
             todoAddChecklistLi.appendChild( todoAddChecklistBtn );
             todoAddChecklistBtn.addEventListener( "click", () => {
                 loadModal( "create", "checkItem" );
@@ -274,6 +298,9 @@ const loadMain = ( project ) => {
                 save();
                 loadMain( getCurrentProject() );
             })
+            if ( checkbox.checked ) {
+                todoLi.classList.add( "completed" );
+            }
 
             if ( todo.checklist.length !== 0 ) {
                 const todoChecklist = document.createElement( "ul" );
@@ -289,7 +316,20 @@ const loadMain = ( project ) => {
                     checkItemLi.setAttribute("data-todoid", todoIndex );
                     checkItemLi.classList.add( "check-item" );
                     checkItemLi.textContent = `${ checkItem.title }`;
+                    checkItemLi.title = "Click to Show Details";
                     todoChecklist.appendChild( checkItemLi );
+                    if ( checkItem.dueDate ) {
+                        const dueDateSpan = document.createElement( "span" );
+                        dueDateSpan.classList.add( "due-date-span" );
+                        dueDateSpan.append( `${ checkItem.dueDate }` );
+                        checkItemLi.append( dueDateSpan );
+                    }
+                    if ( checkItem.priority ) {
+                        const prioritySpan = document.createElement( "span" );
+                        prioritySpan.classList.add( "priority-span" );
+                        prioritySpan.append( `${ checkItem.priority }` );
+                        checkItemLi.append( prioritySpan );
+                    }
 
                     const checkItemDetails = document.createElement( "ul" );
                     checkItemDetails.classList.add( "checkitem-details-ul" );
@@ -351,6 +391,9 @@ const loadMain = ( project ) => {
                     checkItemCheckLabel.htmlFor = `check_checkitem_${ index }`;
                     checkItemCheckLabel.classList.add( "check" );
                     checkItemCheckLabel.textContent = "Completed";
+                    if ( checkItemCheckbox.checked ) {
+                        checkItemLi.classList.add( "completed" );
+                    }
 
                     index++;
                 }
@@ -476,6 +519,7 @@ const loadMain = ( project ) => {
     }
     }
     // hideDetails();
+    
     
 
     
